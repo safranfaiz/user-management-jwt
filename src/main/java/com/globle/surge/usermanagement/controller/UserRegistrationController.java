@@ -1,8 +1,10 @@
 package com.globle.surge.usermanagement.controller;
 
+import com.globle.surge.usermanagement.config.JwtTokenUtil;
 import com.globle.surge.usermanagement.model.User;
 import com.globle.surge.usermanagement.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,6 +14,9 @@ public class UserRegistrationController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    JwtTokenUtil jwtTokenUtil;
 
     @PostMapping("/users")
     public User userRegistration(@RequestBody User user){
@@ -24,14 +29,14 @@ public class UserRegistrationController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody User user){
+    public ResponseEntity login(@RequestBody User user){
 
         if(user.getEmail() != null && user.getPassword() != null){
             if(userService.login(user) != null) {
-                return userService.login(user).toString();
+                return ResponseEntity.ok(jwtTokenUtil.generateToken(user));
             }
         }
-        return "User doesn't exist";
+        return ResponseEntity.ok("Not found");
     }
 
 }
